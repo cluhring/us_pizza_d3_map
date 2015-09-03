@@ -1,0 +1,13 @@
+Scholars' Lab US States
+
+US State boundaries for Scholars' Lab GIS workshop
+
+Attributes:
+SUB_REGION: The subregion of the United States in which a state is located.  The U.S. subregions are as defined by the U.S. Census Bureau, except in this data set New England is classified as a subregion instead of a region. - 
+POP2010: The 2010 estimated population of the state. - 
+SQMI: The area of the state in square miles. - 
+STATE_NAME: The state name. - 
+ObjectID: Internal feature number. - 
+STATE_FIPS: The FIPS code (two-digit number) for the state. - 
+
+exported on Thu Sep 03 13:23:51 -0400 2015
