@@ -2,7 +2,9 @@
 <meta charset="utf-8">
 <style>
 
-.subunit.USA { fill: #dcd; }
+.subunit.USB { fill: #dcd; }
+.subunit.USK { fill: #dcd; }
+.subunit.USH { fill: #dcd; }
 .subunit.CAN { fill: #cdd; }
 .subunit.MEX { fill: #ddc; }
 
@@ -38,10 +40,6 @@
 var width = 1260,
     height = 1160;
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
-
 // var subunits = topojson.feature(uk, uk.objects.subunits);
 
 // var path = d3.geo.path().projection(projection);
@@ -53,19 +51,21 @@ var projection = d3.geo.albers()
   .scale(1500)
   .translate([width / 2, height / 2]);
 
+var path = d3.geo.path()
+    .projection(projection);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
 d3.json("uk.json", function(error, uk) {
-  if (error) return console.error(error);
-
-  svg.append("path")
-    .datum(topojson.feature(uk, uk.objects.subunits))
-    .attr("d", d3.geo.path().projection(projection));
-
   svg.selectAll(".subunit")
-    .data(topojson.feature(uk, uk.objects.subunits).features)
-  .enter().append("path")
-    .attr("class", function(d) { return "subunit " + d.id; })
-    .attr("d", path);
+      .data(topojson.feature(uk, uk.objects.subunits).features)
+    .enter().append("path")
+      .attr("class", function(d) { return "subunit " + d.id; })
+      .attr("d", path);
 });
+
 
 
   //
