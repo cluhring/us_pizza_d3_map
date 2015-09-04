@@ -1,4 +1,6 @@
-# d3 Map of the USA, using data from ["Steve Kinney's Pizza Repo"]https://github.com/stevekinney/pizza
+# d3 Map of the USA
+
+mapping data points from ["Steve Kinney's Pizza Repo"]https://github.com/stevekinney/pizza
 
 ![alt text](https://github.com/cluhring/us_pizza_d3_map/blob/master/pizza_usa.png)
 
