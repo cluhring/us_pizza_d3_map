@@ -22,6 +22,7 @@ path {
   font-size: 2px;
   font-weight: 500;
   text-anchor: middle;
+  pointRadius: 2;
 }
 
 .background {
@@ -63,7 +64,8 @@ var zoom = d3.behavior.zoom()
     .on("zoom", zoomed);
 
 var path = d3.geo.path()
-    .projection(projection);
+    .projection(projection)
+    .pointRadius(2);
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
