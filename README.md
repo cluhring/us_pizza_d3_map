@@ -1,0 +1,1 @@
+topojson -o us.json --id-property STATE_NAME --properties name=NAME --id-property SU_A3 --properties name=NAME --id-property pizzeria --properties name=NAME -- states.json subunits.json pizza_map.geojson
