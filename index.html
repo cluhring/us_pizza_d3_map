@@ -2,18 +2,18 @@
 <meta charset="utf-8">
 <style>
 
-path {
+/*path {
   fill: #ccc;
   stroke: #fff;
   stroke-linejoin: round;
-}
-.subunit.USB { fill: #dcd; }
+}*/
+/*.subunit.USB { fill: #dcd; }
 .subunit.USK { fill: #dcd; }
 .subunit.USH { fill: #dcd; }
 .subunit.CAN { fill: #cdd; }
-.subunit.MEX { fill: #ddc; }
+.subunit.MEX { fill: #ddc; }*/
 
-.subunit-boundary {
+/*.subunit-boundary {
   fill: none;
   stroke: #777;
   stroke-dasharray: 2,2;
@@ -30,7 +30,7 @@ path {
   font-size: 20px;
   font-weight: 300;
   text-anchor: middle;
-}
+}*/
 
 .states-label {
   fill: #777;
@@ -43,9 +43,30 @@ path {
 .pizza-label {
   fill: #777;
   fill-opacity: .5;
-  font-size: 8px;
+  font-size: 2px;
   font-weight: 500;
   text-anchor: middle;
+}
+
+.background {
+  fill: none;
+  pointer-events: all;
+}
+
+.states {
+  fill: #ccc;
+  cursor: pointer;
+}
+
+.states.active {
+  fill: orange;
+}
+
+.states {
+  fill: #cdc;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 </style>
@@ -56,81 +77,110 @@ path {
 <script>
 
 var width = 1260,
-    height = 1160;
+    height = 1160,
+    active = d3.select(null);
 
-var projection = d3.geo.albers()
-  .center([0, 38.5])
-  .rotate([98.0, 0])
-  .parallels([30, 80])
+var projection = d3.geo.albersUsa()
+  // .center([0, 38.5])
+  // .rotate([98.0, 0])
+  // .parallels([30, 80])
   .scale(1000)
   .translate([width / 2, height / 2]);
+
+var zoom = d3.behavior.zoom()
+    .translate([0, 0])
+    .scale(1)
+    .scaleExtent([1, 8])
+    .on("zoom", zoomed);
 
 var path = d3.geo.path()
     .projection(projection);
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
-    .attr("height", height);
+    .attr("height", height)
+    .on("click", stopped, true);
+
+svg.append("rect")
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height)
+    .on("click", reset);
+
+var g = svg.append("g");
+
+svg
+    .call(zoom) // delete this line to disable free zooming
+    .call(zoom.event);
 
 queue()
     .defer(d3.json, "us.json")
-    .defer(d3.json, "uk.json")
+    // .defer(d3.json, "uk.json")
     .defer(d3.json, "pizza_tj.json")
-    .defer(d3.json, "states_tj.json")
+    // .defer(d3.json, "states_tj.json")
     .await(ready);
 
-function ready(error, us, uk, pizza_tj, states_tj) {
+function ready(error, us, pizza_tj) {
   if (error) throw error;
 
-  svg.selectAll(".subunit")
-      .data(topojson.feature(us, us.objects.subunits).features)
-    .enter().append("path")
-      .attr("class", function(d) { return "subunit " + d.id; })
-      .attr("d", path);
+  // svg.selectAll(".subunit")
+  //     .data(topojson.feature(us, us.objects.subunits).features)
+  //   .enter().append("path")
+  //     .attr("class", function(d) { return "subunit " + d.id; })
+  //     .attr("d", path);
+  //
+  // svg.append("path")
+  //   .datum(topojson.mesh(us, us.objects.subunits, function(a, b) { return a !== b && a.id !== "USB" && a.id !== "USK" && a.id !== "USH"; }))
+  //   .attr("d", path)
+  //   .attr("class", "subunit-boundary");
+  //
+  // svg.append("path")
+  //   .datum(topojson.mesh(us, us.objects.subunits, function(a, b) { return a === b && a.id === "USB" && a.id === "USK" && a.id !== "USH"; }))
+  //   .attr("d", path)
+  //   .attr("class", "subunit-boundary USB");
 
-  svg.append("path")
-    .datum(topojson.mesh(us, us.objects.subunits, function(a, b) { return a !== b && a.id !== "USB" && a.id !== "USK" && a.id !== "USH"; }))
-    .attr("d", path)
-    .attr("class", "subunit-boundary");
+  // svg.selectAll(".states")
+  //     .data(topojson.feature(us, us.objects.states).features)
+  //   .enter().append("path")
+  //     .attr("class", function(d) { return "states " + d.id; })
+  //     .attr("d", path)
 
-  svg.append("path")
-    .datum(topojson.mesh(us, us.objects.subunits, function(a, b) { return a === b && a.id === "USB" && a.id === "USK" && a.id !== "USH"; }))
-    .attr("d", path)
-    .attr("class", "subunit-boundary USB");
-
-  svg.selectAll(".states")
+  g.selectAll(".states")
       .data(topojson.feature(us, us.objects.states).features)
     .enter().append("path")
       .attr("class", function(d) { return "states " + d.id; })
-      .attr("d", path);
+      .attr("d", path)
+      // .attr("class", "states")
+      .on("click", clicked);
 
-  svg.selectAll(".pizza")
+  g.append("path")
+    .datum(topojson.mesh(us, us.objects.states, function(a, b) {return a !== b; }))
+    // .attr("class", "states")
+    .attr("class", "states")
+    .style("fill", "#ccd")
+    .attr("d", path);
+
+  g.selectAll(".pizza")
       .data(topojson.feature(us, us.objects.pizza_map).features)
     .enter().append("path")
       .attr("class", function(d) { return "pizza " + d.id; })
       .attr("d", path);
 
-  svg.append("path")
-    .datum(topojson.feature(us, us.objects.states))
-    .attr("class", "states")
-    .style("fill", "#ccd")
-    .attr("d", path);
-
-  svg.append("path")
+  g.append("path")
     .datum(topojson.feature(us, us.objects.pizza_map))
     .attr("class", "pizza")
     .style("fill", "green")
     .attr("d", path);
 
-  svg.selectAll(".subunit-label")
-      .data(topojson.feature(us, us.objects.subunits).features)
-    .enter().append("text")
-      .attr("class", function(d) { return "subunit-label " + d.id; })
-      .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
-      .attr("dy", ".35em")
-      .text(function(d) { return d.properties.name; });
+  // svg.selectAll(".subunit-label")
+  //     .data(topojson.feature(us, us.objects.subunits).features)
+  //   .enter().append("text")
+  //     .attr("class", function(d) { return "subunit-label " + d.id; })
+  //     .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+  //     .attr("dy", ".35em")
+  //     .text(function(d) { return d.properties.name; });
 
-  svg.selectAll(".states-label")
+  g.selectAll(".states-label")
       .data(topojson.feature(us, us.objects.states).features)
     .enter().append("text")
       .attr("class", function(d) { return "states-label " + d.id; })
@@ -138,7 +188,7 @@ function ready(error, us, uk, pizza_tj, states_tj) {
       .attr("dy", ".35em")
       .text(function(d) { return d.id; });
 
-  svg.selectAll(".pizza-label")
+  g.selectAll(".pizza-label")
       .data(topojson.feature(us, us.objects.pizza_map).features)
     .enter().append("text")
       .attr("class", "pizza-label")
@@ -146,9 +196,48 @@ function ready(error, us, uk, pizza_tj, states_tj) {
       .attr("dy", ".35em")
       .text(function(d) { return d.id; });
 
-  svg.selectAll(".pizza-label")
+  g.selectAll(".pizza-label")
     .attr("x", function(d) { return d.geometry.coordinates[0] > -1 ? 6 : -6; })
     .style("text-anchor", function(d) { return d.geometry.coordinates[0] > -1 ? "start" : "end"; });
 };
+
+
+function clicked(d) {
+  if (active.node() === this) return reset();
+  active.classed("active", false);
+  active = d3.select(this).classed("active", true);
+
+  var bounds = path.bounds(d),
+      dx = bounds[1][0] - bounds[0][0],
+      dy = bounds[1][1] - bounds[0][1],
+      x = (bounds[0][0] + bounds[1][0]) / 2,
+      y = (bounds[0][1] + bounds[1][1]) / 2,
+      scale = .9 / Math.max(dx / width, dy / height),
+      translate = [width / 2 - scale * x, height / 2 - scale * y];
+
+  svg.transition()
+      .duration(750)
+      .call(zoom.translate(translate).scale(scale).event);
+}
+
+function reset() {
+  active.classed("active", false);
+  active = d3.select(null);
+
+  svg.transition()
+      .duration(750)
+      .call(zoom.translate([0, 0]).scale(1).event);
+}
+
+function zoomed() {
+    g.style("stroke-width", 1.5 / d3.event.scale + "px");
+    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
+// If the drag behavior prevents the default click,
+// also stop propagation so we don’t click-to-zoom.
+function stopped() {
+  if (d3.event.defaultPrevented) d3.event.stopPropagation();
+}
 
 </script>
