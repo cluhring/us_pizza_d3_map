@@ -4,12 +4,13 @@
 
 path {
   fill: #ccc;
-  stroke: #fff;
+  stroke: #000000;
   stroke-linejoin: round;
 }
 
 .states-label {
-  fill: #777;
+  fill: #ce2d4f;
+  border: #000000;
   fill-opacity: .5;
   font-size: 8px;
   font-weight: 300;
@@ -30,12 +31,20 @@ path {
 }
 
 .states.active {
-  fill: orange;
+  fill: #b14aed;
 }
 
 .states {
   cursor: pointer;
-  fill: #cdc;
+  fill: #23b5d3;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.states:hover {
+  cursor: pointer;
+  fill: #b14aed;
   stroke: #fff;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -148,7 +157,7 @@ function ready(error, us, pizza_tj) {
   g.append("path")
     .datum(topojson.feature(us, us.objects.pizza_map))
     .attr("class", "pizza")
-    .style("fill", "green")
+    .style("fill", "#6e44ff")
     .attr("d", path);
 
   g.selectAll(".states-label")
