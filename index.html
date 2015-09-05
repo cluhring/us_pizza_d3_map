@@ -18,11 +18,10 @@ path {
 
 .pizza-label {
   fill: #777;
-  fill-opacity: .5;
-  font-size: 2px;
+  fill-opacity: 0;
+  font-size: 1px;
   font-weight: 500;
   text-anchor: middle;
-  pointRadius: 2;
 }
 
 .background {
@@ -42,11 +41,41 @@ path {
   stroke-linejoin: round;
 }
 
+.d3-tip {
+  line-height: 1;
+  font-size: 30px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+  pointer-events: none;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  position: absolute;
+  pointer-events: none;
+}
+/* Northward tooltips */
+.d3-tip.n:after {
+  content: "\25BC";
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+  text-align: center;
+}
+
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="index.js"></script>
 <script>
 
 var width = 1260,
@@ -80,9 +109,15 @@ svg.append("rect")
 
 var g = svg.append("g");
 
+var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d) { return d.id; });
+
 svg
     .call(zoom)
-    .call(zoom.event);
+    .call(zoom.event)
+    .call(tip);
 
 queue()
     .defer(d3.json, "us.json")
@@ -130,11 +165,13 @@ function ready(error, us, pizza_tj) {
       .attr("class", "pizza-label")
       .attr("transform", function(d) { return "translate(" + projection(d.geometry.coordinates) + ")"; })
       .attr("dy", ".35em")
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
       .text(function(d) { return d.id; });
 
-  g.selectAll(".pizza-label")
-    .attr("x", function(d) { return d.geometry.coordinates[0] > -1 ? 6 : -6; })
-    .style("text-anchor", function(d) { return d.geometry.coordinates[0] > -1 ? "start" : "end"; });
+  // g.selectAll(".pizza-label")
+  //   .attr("x", function(d) { return d.geometry.coordinates[0] > -1 ? 6 : -6; })
+  //   .style("text-anchor", function(d) { return d.geometry.coordinates[0] > -1 ? "start" : "end"; });
 };
 
 
